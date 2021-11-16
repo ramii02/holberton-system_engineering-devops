@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# This script is displaying "Holberton School" 10 times
+
+for entry in *;
+do
+    echo "$entry" | cut -d"-" -f2
+done
