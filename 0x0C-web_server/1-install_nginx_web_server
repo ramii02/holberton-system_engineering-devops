@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Install NGINX web server
+# code that automatically installs "engine x" and inserts a string in the site
 sudo apt-get -y update
+sudo apt-get -y upgrade
 sudo apt-get -y install nginx
-echo "Holberton School for the win!" > /var/www/html/index.nginx-debian.html
-sudo service nginx start
+echo "Holberton School" | sudo tee /usr/share/nginx/html/index.html
+sudo service nginx restart

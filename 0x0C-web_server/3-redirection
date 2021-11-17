@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Redirection
-#!/usr/nin/env bash
-# Install NGINX web server
-apt -y update
-apt install -y nginx
-echo "Holberton School" > /var/www/html/index.html
-sed -i 's/root \/var\/www\/html;/root \/var\/www\/html;\n\trewrite ^\/redirect_me http:\/\/www.youtube.com\/watch?v=QH2-TGUlwu4 permanent;/' /etc/nginx/sites-available/default
-service nginx restart
+# redirects to nyancat
+sudo apt-get -y update
+sudo apt-get -u upgrade
+sudo apt-get -y install nginx
+service nginx start
+# string="location /redirect_me {\nreturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n}\n"
+echo "Holberton School" | sudo tee /usr/share/nginx/html/index.html
+# sudo sed -i "44i location /redirect_me {return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;}" /etc/nginx/sites-available/default
+# sudo sed -i "32i location /redirect_me {rewrite ^ https://www.youtube.com/watch?v=QH2-TGUlwu4/$request_uri? permanent;}" /etc/nginx/sites-available/default
+sudo sed -i "s@#error_page 404 \/404.html;@location \/redirect_me {return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;}\n#error_page 404 \/404.html;@" /etc/nginx/sites-available/default
+sudo service nginx restart
