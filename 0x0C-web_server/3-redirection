@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Redirection
+#!/usr/nin/env bash
+# Install NGINX web server
+apt -y update
+apt install -y nginx
+echo "Holberton School" > /var/www/html/index.html
+sed -i 's/root \/var\/www\/html;/root \/var\/www\/html;\n\trewrite ^\/redirect_me http:\/\/www.youtube.com\/watch?v=QH2-TGUlwu4 permanent;/' /etc/nginx/sites-available/default
+service nginx restart
