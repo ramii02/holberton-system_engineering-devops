@@ -2,7 +2,7 @@ global
         log /dev/log    local0
         log /dev/log    local1 notice
         chroot /var/lib/haproxy
-        stats socket /run/haproxy/admin.sock mode 660 level admin
+        stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
         stats timeout 30s
         user haproxy
         group haproxy
@@ -15,7 +15,9 @@ global
         # Default ciphers to use on SSL-enabled listening sockets.
         # For more information, see ciphers(1SSL). This list is from:
         #  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
-        ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS
+        # An alternative list with additional directives can be obtained from
+        #  https://mozilla.github.io/server-side-tls/ssl-config-generator/?server=haproxy
+        ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
         ssl-default-bind-options no-sslv3
 
 defaults
@@ -23,7 +25,7 @@ defaults
         mode    http
         option  httplog
         option  dontlognull
-        option forwardfor
+        option  forwardfor
         timeout connect 5000
         timeout client  50000
         timeout server  50000
@@ -35,18 +37,18 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-frontend www-http
+frontend http
         bind *:80
-        reqadd X-Forwarded-Proto:\ http
+        http-request set-header X-Forwarded-Proto http
         default_backend web-backend
 
 frontend www-https
-        bind *:443 ssl crt /etc/haproxy/ssl/www.pierre-b.tech.pem
-        reqadd X-Forwarded-Proto:\ https
+        bind *:443 ssl crt /etc/haproxy/ssl/www.luisch.tech.pem
+        http-request set-header X-Forwarded-Proto https
         default_backend web-backend
 
 backend web-backend
-        redirect scheme https if !{ ssl_fc }
         balance roundrobin
-        server 861-web-01 34.74.23.57:80 check
-        server 861-web-02 35.196.161.89:80 check
+        redirect scheme https if !{ ssl_fc }
+        server 938-web-01 35.231.33.237:80 check
+        server 938-web-02 34.74.155.163:80 check
