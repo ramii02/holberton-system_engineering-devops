@@ -17,7 +17,6 @@ global
 	#  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
 	ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS
 	ssl-default-bind-options no-sslv3
-	tune.ssl.default-dh-param 2048
 
 defaults
 	log	global
@@ -35,13 +34,29 @@ defaults
 	errorfile 503 /etc/haproxy/errors/503.http
 	errorfile 504 /etc/haproxy/errors/504.http
 
-frontend third-serenade.tech
+# The frontend only listens on port 80
+# If it detects a LetsEncrypt request, is uses the LE backend
+# Else it goes to the default backend for the web servers
+frontend http
 	bind *:80
-	bind *:443 ssl crt /etc/ssl/private/third-serenade.pem
-	http-request redirect scheme https unless { ssl_fc }
-	default_backend web_servers
 
-backend web_servers
+	# This is our new config that listens on port 443 for SSL connections
+	bind *:443 ssl crt /etc/ssl/www.amonkeyprogrammer.tech/www.amonkeyprogrammer.tech.pem
+
+	# Test URI to see if its a letsencrypt request	
+	acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+	use_backend letsencrypt-backend if letsencrypt-acl
+
+	mode http
+	default_backend web-backend
+
+# LE Backend
+backend letsencrypt-backend
+	server letsencrypt 127.0.0.1:8888
+
+# Normal (default) Backend
+# for web apps
+backend web-backend
 	balance roundrobin
-	server web-01 35.229.22.85:80
-	server web-02 34.74.166.73:80
+	server web-01 35.229.93.37:80 check
+	server web-02 54.196.213.127:80 check
