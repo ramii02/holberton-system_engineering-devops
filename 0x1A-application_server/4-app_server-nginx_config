@@ -1,4 +1,27 @@
-#!/usr/bin/env bash
-# tell gunicorn to reload its configuration
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server ipv6only=on;
+	root /var/www/html;
 
-pkill --signal HUP gunicorn
+	add_header X-Served-By 701-web-01;
+
+	# forward requests to one-page HBNB to the application server
+	location ~ ^/airbnb-onepage($|/) {
+		proxy_pass http://127.0.0.1:5000;
+	}
+
+	# forward requests to another app server with route parameters
+	location /airbnb-dynamic/number_odd_or_even/ {
+		rewrite ^/airbnb-dynamic/(.*)$ /$1 break;
+		proxy_pass http://127.0.0.1:5001;
+	}
+
+	# forward requests to the api to a third app server
+	location /api/ {
+		proxy_pass http://127.0.0.1:5002;
+	}
+
+	location /hbnb_static/ {
+		alias /data/web_static/current/;
+	}
+}
