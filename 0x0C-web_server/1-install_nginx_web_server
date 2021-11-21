@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# Install a nginx web server listening on port 80.
-#
-# Also, when querying nginx at its root / with a GET
-# request, it returns a page that contains the string
-# 'Holberton School'.
-#
+# installs nginx and configures it on a remote server
 
-apt update
-apt install -y nginx
+apt-get -y update
+apt-get -y install nginx
 ufw allow 'Nginx HTTP'
-echo "Holberton School" > /var/www/html/index.html
-service nginx restart
+echo 'Holberton School' > /var/www/html/index.nginx-debian.html
+service nginx start
+© 2021 GitHub, Inc.
+Terms
